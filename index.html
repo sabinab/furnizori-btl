@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestiune Furnizori BTL & Evenimente</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4c5c92;
+            --primary-hover: #3b4876;
+            --bg-light: #f8f9fa;
+            --card-border: #e9ecef;
+        }
+
+        body {
+            background-color: #f4f6fb;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            padding: 1.25rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            overflow: hidden;
+        }
+
+        .table > :not(caption) > * > * {
+            padding: 0.9rem 1rem;
+            vertical-align: middle;
+        }
+
+        .table thead {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .badge-category {
+            font-weight: 500;
+            padding: 0.4em 0.8em;
+            border-radius: 6px;
+            font-size: 0.82rem;
+        }
+
+        .rating-stars {
+            color: #ffc107;
+            letter-spacing: 1px;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+
+        .search-box input {
+            padding-left: 40px;
+            border-radius: 8px;
+        }
+
+        .btn-primary-custom {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary-custom:hover {
+            background-color: var(--primary-hover);
+            border-color: var(--primary-hover);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar Header -->
+    <nav class="navbar navbar-dark bg-dark sticky-top shadow-sm" style="background-color: var(--primary-color) !important;">
+        <div class="container-fluid px-4">
+            <span class="navbar-brand mb-0 h1">
+                <i class="fa-solid fa-address-book me-2"></i> Gestiune Furnizori BTL & Evenimente
+            </span>
+            <button class="btn btn-light btn-sm font-weight-bold" onclick="openAddModal()">
+                <i class="fa-solid fa-plus me-1"></i> Adaugă Furnizor Nou
+            </button>
+        </div>
+    </nav>
+
+    <div class="container-fluid px-4 py-4">
+
+        <!-- Stat Cards / Dashboard Metrics -->
+        <div class="row g-3 mb-4">
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="stat-card d-flex align-items-center">
+                    <div class="stat-icon bg-primary bg-opacity-10 text-primary me-3">
+                        <i class="fa-solid fa-truck-field"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small fw-semibold">TOTAL FURNIZORI</div>
+                        <h3 class="mb-0 fw-bold" id="metricTotal">0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="stat-card d-flex align-items-center">
+                    <div class="stat-icon bg-success bg-opacity-10 text-success me-3">
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small fw-semibold">FURNIZORI TOP (5★)</div>
+                        <h3 class="mb-0 fw-bold" id="metricTop">0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="stat-card d-flex align-items-center">
+                    <div class="stat-icon bg-warning bg-opacity-10 text-warning me-3">
+                        <i class="fa-solid fa-handshake"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small fw-semibold">TERMEN ≥ 30 ZILE</div>
+                        <h3 class="mb-0 fw-bold" id="metricTermen">0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="stat-card d-flex align-items-center">
+                    <div class="stat-icon bg-info bg-opacity-10 text-info me-3">
+                        <i class="fa-solid fa-layer-group"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small fw-semibold">CATEGORII ACTIVE</div>
+                        <h3 class="mb-0 fw-bold" id="metricCategorii">0</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls / Search & Filters -->
+        <div class="row g-3 mb-4 align-items-center">
+            <div class="col-12 col-md-5">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="searchInput" class="form-control" placeholder="Caută după nume, persoană de contact, oraș sau CUI..." oninput="filterData()">
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <select id="categoryFilter" class="form-select" onchange="filterData()">
+                    <option value="">Toate Categoriile de Servicii</option>
+                    <option value="Producție BTL & POSM">Producție BTL & POSM</option>
+                    <option value="Resurse Umane & HR Evenimente">Resurse Umane & HR Evenimente</option>
+                    <option value="Divertisment & Ateliere">Divertisment & Ateliere</option>
+                    <option value="Audio, Video & Sonorizare">Audio, Video & Sonorizare</option>
+                    <option value="Logistică & Transport">Logistică & Transport</option>
+                    <option value="Catering & Consumabile">Catering & Consumabile</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-3">
+                <select id="ratingFilter" class="form-select" onchange="filterData()">
+                    <option value="">Toate Ratingurile</option>
+                    <option value="5">5 Stele (★★★★★)</option>
+                    <option value="4">4 Stele (★★★★☆)</option>
+                    <option value="3">3 Stele (★★★☆☆)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Main Data Table -->
+        <div class="table-container">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Furnizor / Companie</th>
+                            <th>Categorie</th>
+                            <th>Persoană Contact</th>
+                            <th>Telefon & Email</th>
+                            <th>Oraș</th>
+                            <th>Rating</th>
+                            <th>Termen Plată</th>
+                            <th>Tarif Referință</th>
+                            <th class="text-center">Acțiuni</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vendorTableBody">
+                        <!-- Dynamic rows inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal Formular Adăugare/Editare Furnizor -->
+    <div class="modal fade" id="vendorModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header text-white" style="background-color: var(--primary-color);">
+                    <h5 class="modal-title" id="modalTitle"><i class="fa-solid fa-plus me-2"></i> Adaugă Furnizor Nou</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="vendorForm">
+                        <input type="hidden" id="vendorId">
+                        
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Nume Furnizor / Companie *</label>
+                                <input type="text" id="formNume" class="form-control" required placeholder="ex: Media Print BTL S.R.L.">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Categorie Servicii *</label>
+                                <select id="formCategorie" class="form-select" required>
+                                    <option value="">Alege categoria...</option>
+                                    <option value="Producție BTL & POSM">Producție BTL & POSM</option>
+                                    <option value="Resurse Umane & HR Evenimente">Resurse Umane & HR Evenimente</option>
+                                    <option value="Divertisment & Ateliere">Divertisment & Ateliere</option>
+                                    <option value="Audio, Video & Sonorizare">Audio, Video & Sonorizare</option>
+                                    <option value="Logistică & Transport">Logistică & Transport</option>
+                                    <option value="Catering & Consumabile">Catering & Consumabile</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Persoană de Contact</label>
+                                <input type="text" id="formContact" class="form-control" placeholder="ex: Andrei Popescu">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Telefon</label>
+                                <input type="text" id="formTelefon" class="form-control" placeholder="ex: +40 722 000 000">
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Email</label>
+                                <input type="email" id="formEmail" class="form-control" placeholder="ex: contact@furnizor.ro">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Oraș / Regiune Acoperire</label>
+                                <input type="text" id="formOras" class="form-control" placeholder="ex: București & Ilfov">
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Rating / Fiabilitate</label>
+                                <select id="formRating" class="form-select">
+                                    <option value="5">★★★★★ (5 Stele)</option>
+                                    <option value="4">★★★★☆ (4 Stele)</option>
+                                    <option value="3">★★★☆☆ (3 Stele)</option>
+                                    <option value="2">★★☆☆☆ (2 Stele)</option>
+                                    <option value="1">★☆☆☆☆ (1 Stea)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Termen de Plată</label>
+                                <select id="formTermen" class="form-select">
+                                    <option value="La livrare (0 zile)">La livrare (0 zile)</option>
+                                    <option value="15 zile">15 zile</option>
+                                    <option value="30 zile" selected>30 zile</option>
+                                    <option value="45 zile">45 zile</option>
+                                    <option value="60 zile">60 zile</option>
+                                    <option value="Avans 50% + Rest la livrare">Avans 50% + Rest la livrare</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">CUI / Cod Fiscal</label>
+                                <input type="text" id="formCui" class="form-control" placeholder="ex: RO12345678">
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Tarif Standard / Referință</label>
+                                <input type="text" id="formTarif" class="form-control" placeholder="ex: 120 RON/oră sau 35 EUR/m²">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Observații / Specificații Tehnice</label>
+                                <input type="text" id="formObs" class="form-control" placeholder="ex: Deține aviz ISU, autoutilitară cu lift.">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anulează</button>
+                    <button type="button" class="btn btn-primary-custom" onclick="saveVendor()">Salvează Furnizor</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Initial Dataset populated from BTL Vendor Template
+        let vendors = [
+            { id: 1, nume: "Art Production BTL S.R.L.", categorie: "Producție BTL & POSM", contact: "Mihai Ionescu", telefon: "+40 722 111 222", email: "mihai@artproduction.ro", oras: "București", rating: 5, termen: "30 zile", cui: "RO14523987", tarif: "35 EUR/m² colantare", obs: "Standuri 3D, router CNC, volumetrice, colantări rapide." },
+            { id: 2, nume: "Top Staffing Agency S.R.L.", categorie: "Resurse Umane & HR Evenimente", contact: "Elena Radu", telefon: "+40 733 444 555", email: "elena@topstaffing.ro", oras: "Național", rating: 5, termen: "30 zile", cui: "RO28911456", tarif: "25 RON/h hostess", obs: "Bază date 500+ hostesse, promoteri, uniformă proprie." },
+            { id: 3, nume: "Magic Kids Events", categorie: "Divertisment & Ateliere", contact: "Ana Maria Popa", telefon: "+40 744 777 888", email: "contact@magickids.ro", oras: "București & Ilfov", rating: 5, termen: "Avans 50% + Rest la livrare", cui: "RO34112900", tarif: "120 RON/h animator", obs: "Vopsele profesionale hipoalergenice, costume Moș Crăciun." },
+            { id: 4, nume: "Sound & Light Masters S.R.L.", categorie: "Audio, Video & Sonorizare", contact: "Cristian Diaconu", telefon: "+40 755 999 000", email: "cristi@soundmasters.ro", oras: "București", rating: 4, termen: "15 zile", cui: "RO19823411", tarif: "450 EUR/zi pachet sonorizare", obs: "Sisteme sunet L-Acoustics, ecrane LED outdoor, tehnician dedicat." },
+            { id: 5, nume: "Fast Cargo Logistics S.R.L.", categorie: "Logistică & Transport", contact: "Adrian Dumitrescu", telefon: "+40 766 123 456", email: "office@fastcargobtl.ro", oras: "Național", rating: 4, termen: "30 zile", cui: "RO31009844", tarif: "4.5 RON/km + manipulanți", obs: "Autoutilitare 3.5t cu oblon ridicător, manipulare grea." },
+            { id: 6, nume: "Gourmet Catering & Events", categorie: "Catering & Consumabile", contact: "Patricia Stanciu", telefon: "+40 721 987 654", email: "patricia@gourmetevents.ro", oras: "București, Brașov", rating: 5, termen: "15 zile", cui: "RO25443190", tarif: "18 EUR/persoană", obs: "Coffee break, finger food festiv, ateliere turtă dulce." }
+        ];
+
+        let modalInstance;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            modalInstance = new bootstrap.Modal(document.getElementById('vendorModal'));
+            renderTable(vendors);
+        });
+
+        function renderTable(data) {
+            const tbody = document.getElementById("vendorTableBody");
+            tbody.innerHTML = "";
+
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-muted">Niciun furnizor găsit conform filtrelor selectate.</td></tr>`;
+                updateMetrics(data);
+                return;
+            }
+
+            data.forEach(v => {
+                const tr = document.createElement("tr");
+
+                let badgeColor = "bg-secondary";
+                if(v.categorie.includes("Producție")) badgeColor = "bg-primary";
+                else if(v.categorie.includes("Resurse")) badgeColor = "bg-success";
+                else if(v.categorie.includes("Divertisment")) badgeColor = "bg-warning text-dark";
+                else if(v.categorie.includes("Audio")) badgeColor = "bg-danger";
+                else if(v.categorie.includes("Logistică")) badgeColor = "bg-info text-dark";
+                else if(v.categorie.includes("Catering")) badgeColor = "bg-dark";
+
+                let stars = "★".repeat(v.rating) + "☆".repeat(5 - v.rating);
+
+                tr.innerHTML = `
+                    <td>
+                        <div class="fw-bold text-dark">${v.nume}</div>
+                        <small class="text-muted">CUI: ${v.cui || 'N/A'}</small>
+                    </td>
+                    <td><span class="badge ${badgeColor} badge-category">${v.categorie}</span></td>
+                    <td><span class="fw-semibold">${v.contact}</span></td>
+                    <td>
+                        <div><i class="fa-solid fa-phone text-muted me-1 small"></i>${v.telefon}</div>
+                        <div><i class="fa-solid fa-envelope text-muted me-1 small"></i><small>${v.email}</small></div>
+                    </td>
+                    <td><i class="fa-solid fa-location-dot text-danger me-1 small"></i>${v.oras}</td>
+                    <td><span class="rating-stars">${stars}</span></td>
+                    <td><span class="badge bg-light text-dark border">${v.termen}</span></td>
+                    <td><span class="fw-semibold text-success">${v.tarif}</span></td>
+                    <td class="text-center">
+                        <button class="btn btn-sm btn-outline-primary me-1" onclick="openEditModal(${v.id})" title="Editează">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteVendor(${v.id})" title="Șterge">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            updateMetrics(data);
+        }
+
+        function updateMetrics(data) {
+            document.getElementById("metricTotal").innerText = vendors.length;
+            document.getElementById("metricTop").innerText = vendors.filter(v => v.rating === 5).length;
+            document.getElementById("metricTermen").innerText = vendors.filter(v => v.termen.includes("30") || v.termen.includes("45") || v.termen.includes("60")).length;
+            
+            const categories = new Set(vendors.map(v => v.categorie));
+            document.getElementById("metricCategorii").innerText = categories.size;
+        }
+
+        function filterData() {
+            const searchVal = document.getElementById("searchInput").value.toLowerCase();
+            const catVal = document.getElementById("categoryFilter").value;
+            const ratVal = document.getElementById("ratingFilter").value;
+
+            const filtered = vendors.filter(v => {
+                const matchesSearch = v.nume.toLowerCase().includes(searchVal) || 
+                                      v.contact.toLowerCase().includes(searchVal) || 
+                                      v.oras.toLowerCase().includes(searchVal) || 
+                                      v.cui.toLowerCase().includes(searchVal);
+                
+                const matchesCat = catVal === "" || v.categorie === catVal;
+                const matchesRat = ratVal === "" || v.rating == ratVal;
+
+                return matchesSearch && matchesCat && matchesRat;
+            });
+
+            renderTable(filtered);
+        }
+
+        function openAddModal() {
+            document.getElementById("vendorForm").reset();
+            document.getElementById("vendorId").value = "";
+            document.getElementById("modalTitle").innerHTML = `<i class="fa-solid fa-plus me-2"></i> Adaugă Furnizor Nou`;
+            modalInstance.show();
+        }
+
+        function openEditModal(id) {
+            const v = vendors.find(item => item.id === id);
+            if (!v) return;
+
+            document.getElementById("vendorId").value = v.id;
+            document.getElementById("formNume").value = v.nume;
+            document.getElementById("formCategorie").value = v.categorie;
+            document.getElementById("formContact").value = v.contact;
+            document.getElementById("formTelefon").value = v.telefon;
+            document.getElementById("formEmail").value = v.email;
+            document.getElementById("formOras").value = v.oras;
+            document.getElementById("formRating").value = v.rating;
+            document.getElementById("formTermen").value = v.termen;
+            document.getElementById("formCui").value = v.cui;
+            document.getElementById("formTarif").value = v.tarif;
+            document.getElementById("formObs").value = v.obs;
+
+            document.getElementById("modalTitle").innerHTML = `<i class="fa-solid fa-pen me-2"></i> Editează Furnizor`;
+            modalInstance.show();
+        }
+
+        function saveVendor() {
+            const id = document.getElementById("vendorId").value;
+            const nume = document.getElementById("formNume").value.trim();
+            const categorie = document.getElementById("formCategorie").value;
+
+            if (!nume || !categorie) {
+                alert("Vă rugăm să completați Numele și Categoria furnizorului!");
+                return;
+            }
+
+            const vendorObj = {
+                id: id ? parseInt(id) : Date.now(),
+                nume: nume,
+                categorie: categorie,
+                contact: document.getElementById("formContact").value.trim(),
+                telefon: document.getElementById("formTelefon").value.trim(),
+                email: document.getElementById("formEmail").value.trim(),
+                oras: document.getElementById("formOras").value.trim(),
+                rating: parseInt(document.getElementById("formRating").value),
+                termen: document.getElementById("formTermen").value,
+                cui: document.getElementById("formCui").value.trim(),
+                tarif: document.getElementById("formTarif").value.trim(),
+                obs: document.getElementById("formObs").value.trim()
+            };
+
+            if (id) {
+                const index = vendors.findIndex(v => v.id === parseInt(id));
+                vendors[index] = vendorObj;
+            } else {
+                vendors.unshift(vendorObj);
+            }
+
+            modalInstance.hide();
+            filterData();
+        }
+
+        function deleteVendor(id) {
+            if (confirm("Sigur doriți să ștergeți acest furnizor din bază?")) {
+                vendors = vendors.filter(v => v.id !== id);
+                filterData();
+            }
+        }
+    </script>
+</body>
+</html>
